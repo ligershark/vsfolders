@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSFolders", "VSFolders\VSFolders.csproj", "{8758D4D0-801B-4D86-9C1B-2536589C34FE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{242B28B0-76CC-423E-A35A-F64385F73CB1}"
+	ProjectSection(SolutionItems) = preProject
+		Samples\BuildableSample.zip = Samples\BuildableSample.zip
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 2
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://n3p.visualstudio.com/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = VSFolders\\VSFolders.csproj
+		SccProjectName1 = VSFolders
+		SccLocalPath1 = VSFolders
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8758D4D0-801B-4D86-9C1B-2536589C34FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8758D4D0-801B-4D86-9C1B-2536589C34FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8758D4D0-801B-4D86-9C1B-2536589C34FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8758D4D0-801B-4D86-9C1B-2536589C34FE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

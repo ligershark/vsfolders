@@ -1,0 +1,122 @@
+﻿<UserControl x:Class="Microsoft.VSFolders.FoldersControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converters="clr-namespace:Microsoft.VSFolders.Converters"
+             xmlns:vsFolders="clr-namespace:Microsoft.VSFolders"
+             xmlns:fastTree="clr-namespace:Microsoft.VSFolders.FastTree"
+             xmlns:models="clr-namespace:Microsoft.VSFolders.Models"
+             Background="{DynamicResource VsBrush.Window}"
+             Foreground="{DynamicResource VsBrush.WindowText}"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300"
+             d:DataContext="{d:DesignInstance Type=models:FoldersWindowViewModel, IsDesignTimeCreatable=True}"
+             Name="MyToolWindow">
+    <UserControl.Resources>
+        <converters:NotConverter x:Key="NotConverter" />
+        <converters:AssetConverter x:Key="Asset" />
+        <converters:WhyIsThisNecessaryConverter x:Key="Asset2" />
+        <converters:ContextMenuConverter x:Key="ctxConverter" />
+        <converters:BoolToVisibilityConverter x:Key="Vis" />
+        <converters:MultiConverter x:Key="HiddenFiles">
+            <converters:FileDataToEffectivelyHiddenIndicationConverter />
+            <converters:BoolToOpacityConverter />
+        </converters:MultiConverter>
+        <ContextMenu x:Key="Menu" ItemsSource="{Binding Converter={StaticResource ctxConverter}}" d:DataContext="{d:DesignInstance Type=vsFolders:ContextMenuItem}" >
+            <ContextMenu.Resources>
+                <ControlTemplate x:Key="MenuSeparatorTemplate">
+                    <Separator />
+                </ControlTemplate>
+            </ContextMenu.Resources>
+            <ContextMenu.ItemContainerStyle>
+                <Style TargetType="MenuItem">
+                    <Setter Property="Command" Value="{Binding Command}" />
+                    <Setter Property="CommandParameter" Value="{Binding RelativeSource = {RelativeSource AncestorType={x:Type ContextMenu}}, Path=DataContext}" />
+                    <Setter Property="Header" Value="{Binding Name}" />
+                    <Setter Property="Icon" Value="{Binding Converter={StaticResource Asset2}}"/>
+                    <Setter Property="ItemsSource" Value="{Binding Children}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Name }" Value="{x:Null}">
+                            <Setter Property="Template" Value="{StaticResource MenuSeparatorTemplate}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContextMenu.ItemContainerStyle>
+        </ContextMenu>
+        <Style x:Key="TreeViewItemStyle" TargetType="TreeViewItem" d:DataContext="{d:DesignInstance Type=fastTree:ITreeNode}">
+            <Setter Property="Visibility" Value="{Binding Path=MatchesFilter, Converter={StaticResource ResourceKey=Vis}}" />
+            <Setter Property="IsExpanded" Value="{Binding Path=IsExpanded, Mode=TwoWay}" />
+            <Setter Property="ContextMenu" Value="{StaticResource Menu}"/>
+        </Style>
+        <HierarchicalDataTemplate x:Key="TreeViewTemplate" DataType="fastTree:ITreeNode" ItemsSource="{Binding }" ItemContainerStyle="{StaticResource TreeViewItemStyle}">
+            <Grid IsHitTestVisible="True" IsManipulationEnabled="True" Opacity="{Binding Path=Self, Converter={StaticResource HiddenFiles}, ConverterParameter=1, TargetNullValue=.6}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width ="*" />
+                </Grid.ColumnDefinitions>
+                <Image Source="{Binding Path=Value.Icon}" Width="16" Height="16" Stretch="Uniform" />
+                <TextBlock Grid.Column="1" Text="{Binding Path=Value.Name}" VerticalAlignment="Center" />
+            </Grid>
+        </HierarchicalDataTemplate>
+    </UserControl.Resources>
+     
+    <Grid  AllowDrop="True" DragOver="UIElement_OnDragOver" Drop="UIElement_OnDrop">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <ToolBar>
+            <Button Content="Add Folder..." Command="{Binding Path=BrowseForFolderCommand}" />
+            <Button Click="CollapseAllButtonClick" ToolTip="Collapse All">
+                <Image Source="{Binding Converter={StaticResource Asset}, ConverterParameter='CollapseAll'}" />
+            </Button>
+            <ToggleButton IsChecked="{Binding Source={x:Static vsFolders:VSFoldersPackage.Settings}, Path=PreviewItems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="Preview Selected Files">
+                <Image Source="{Binding Converter={StaticResource Asset}, ConverterParameter='OpenInPreviewTab'}" />
+            </ToggleButton>
+            <!--<Button Command="{Binding BuildAction}">
+                <Image Source="{Binding Converter={StaticResource Asset}, ConverterParameter='Build'}" />
+            </Button>-->
+            <ToggleButton IsChecked="{Binding Source={x:Static vsFolders:VSFoldersPackage.Settings}, Path=ShowHiddenFiles, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="Show Hidden Files">
+                <Image Source="{Binding Converter={StaticResource Asset}, ConverterParameter='template_Document_16xLG'}"></Image>
+            </ToggleButton>
+            <Button Command="{Binding LaunchSettingsCommand}" ToolTip="Open Settings">
+                <Image Source="{Binding Converter={StaticResource Asset}, ConverterParameter='gear_32xSM'}" />
+            </Button>
+        </ToolBar>
+        <Grid Grid.Row="1" x:Name="SearchPane">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBox x:Name="SearchText" Text="{Binding Path=SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" LostFocus="SearchLostFocus" PreviewKeyDown="SearchTextPreviewKeyDown" />
+            <Button x:Name="SearchButton" Grid.Column="1" Grid.Row="0" Background="Transparent" BorderBrush="Transparent" Visibility="{Binding Path=IsSearching, Converter={StaticResource Vis}, ConverterParameter=true}">
+                <Image Source="{Binding Converter={StaticResource Asset}, ConverterParameter='magnifier_16xLG'}"></Image>
+            </Button>
+            <Button Grid.Column="1" Grid.Row="0" Command="{Binding Path=ClearSearchCommand}" Background="Transparent" BorderBrush="Transparent" Visibility="{Binding Path=IsSearching, Converter={StaticResource Vis}}">
+                <Image Source="{Binding Converter={StaticResource Asset}, ConverterParameter='action_Cancel_16xLG'}"></Image>
+            </Button>
+            <Button Grid.Column="2" Grid.Row="0" Click="ShowSearchOptionsClicked" Background="Transparent" Width="14" BorderBrush="Transparent">
+                <Image Source="{Binding Converter={StaticResource Asset}, ConverterParameter='GlyphDown'}" HorizontalAlignment="Center" Stretch="None"></Image>
+            </Button>
+            <Popup x:Name="SearchOptions" Grid.Row="1" Grid.Column="0">
+                <Border Background="WhiteSmoke" BorderBrush="Black" BorderThickness="1" Padding="5" LostFocus="SearchLostFocus">
+                    <Border.Effect>
+                        <DropShadowEffect />
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="Search Options" Foreground="#777" FontWeight="Bold" Margin="0 0 0 5" />
+                        <CheckBox x:Name="FirstOption" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Content="Search within file contents" IsChecked="{Binding Source={x:Static vsFolders:VSFoldersPackage.Settings}, Path=SearchInFiles, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                </Border>
+            </Popup>
+        </Grid>
+        <TreeView Grid.Row="2" x:Name="Folders" ItemsSource="{Binding Path=DataSource.Tree}"  PreviewKeyDown="UIElement_OnKeyDown" ItemTemplate="{StaticResource TreeViewTemplate}" MouseDoubleClick="Control_OnMouseDoubleClick"  SelectedItemChanged="ShowInPreviewWindowIfSelected" IsEnabled="{Binding Path=IsUpdating, Converter={StaticResource NotConverter}}" IsTextSearchEnabled="True" IsTextSearchCaseSensitive="False" MouseDown="Folders_OnMouseDown" ItemContainerStyle="{StaticResource TreeViewItemStyle}" VirtualizingStackPanel.IsVirtualizing="true" />
+    </Grid>
+</UserControl>
