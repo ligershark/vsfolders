@@ -1,0 +1,17 @@
+os: Windows Server 2012
+
+environment:
+  VisualStudioVersion: 14.0
+  NuGetApiKey:
+    secure: HFUEQanhaxHV/sRQYznQqg7LToxSGeIoSvrmyY29PJ1eDbXxUuYrEQ6MPAsZIQFT
+
+configuration: Release
+
+build_script:
+  - ps: .\appveyor.ps1
+
+artifacts:
+  - path: OutputRoot\**\*.vsix
+  - path: OutputRoot\**\*.pdb
+  - path: OutputRoot\**\*.vsixmanifest
+  - path: OutputRoot\**\*.pkgdef
