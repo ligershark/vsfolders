@@ -1,49 +1,49 @@
-﻿using System;
-using System.IO;
-using System.Windows;
-using System.Windows.Forms;
-using System.Windows.Input;
-using Microsoft.VSFolders.Models;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="AddRename.xaml.cs" company="Microsoft">
+//   Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// <summary>
+//   AddRename.xaml.cs
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 namespace Microsoft.VSFolders
 {
+    using System;
+    using System.IO;
+    using System.Windows;
+    using System.Windows.Forms;
+    using System.Windows.Input;
+    using Models;
+    using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+
     /// <summary>
     /// Interaction logic for AddRename.xaml
     /// </summary>
     public partial class AddRename : Window
     {
         private bool _activated;
+
         public AddRename()
         {
-            InitializeComponent();
-            ViewModel = new AddRenameViewModel();
-        }
-
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
-            if (!_activated) // we have to do this here because we need to be sure binding is completed before SelectAll
-            {
-                this.txtInput.SelectAll();
-                this.txtInput.Focus();
-                _activated = true;
-            }
+            this.InitializeComponent();
+            this.ViewModel = new AddRenameViewModel();
         }
 
         public AddRenameViewModel ViewModel
         {
-            get { return DataContext as AddRenameViewModel; }
-            set { DataContext = value; }
+            get { return this.DataContext as AddRenameViewModel; }
+            set { this.DataContext = value; }
         }
 
         public static DialogResult ShowAsDialog(string title, string path, out string fileName)
         {
-            var dlg = new AddRename();
-            dlg.ViewModel.FileName = Path.GetFileName(path);
-            dlg.Title = title;
+            AddRename dlg = new AddRename
+            {
+                ViewModel = {FileName = Path.GetFileName(path)},
+                Title = title
+            };
 
-            var res = dlg.ShowDialog();
+            bool? res = dlg.ShowDialog();
             fileName = null;
 
             if (res.GetValueOrDefault())
@@ -51,20 +51,36 @@ namespace Microsoft.VSFolders
                 fileName = dlg.ViewModel.FileName;
                 return System.Windows.Forms.DialogResult.OK;
             }
+
             return System.Windows.Forms.DialogResult.Cancel;
+        }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            if (!this._activated)
+            {
+// we have to do this here because we need to be sure binding is completed before SelectAll
+                this.txtInput.SelectAll();
+                this.txtInput.Focus();
+                this._activated = true;
+            }
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            CloseDialog();
+            this.CloseDialog();
         }
 
         private void CloseDialog()
         {
-          if (String.IsNullOrEmpty(ViewModel.FileName))
+            if (string.IsNullOrEmpty(this.ViewModel.FileName))
+            {
                 return;
-            DialogResult = true;
-        } 
+            }
+
+            this.DialogResult = true;
+        }
 
         private void TxtInput_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
@@ -73,7 +89,7 @@ namespace Microsoft.VSFolders
                 this.okButton.Focus();
                 e.Handled = true;
 
-                CloseDialog();
+                this.CloseDialog();
             }
         }
     }

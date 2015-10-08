@@ -1,13 +1,15 @@
-﻿// PkgCmdID.cs
-// MUST match PkgCmdID.h
-using System;
-
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="PkgCmdIDList.cs" company="Microsoft">
+//   Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// <summary>
+//   PkgCmdIDList.cs
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 namespace Microsoft.VSFolders
 {
-    static class PkgCmdIDList
+    internal static class PkgCmdIDList
     {
-
-        public const uint cmdidFolders =    0x101;
-        public const uint cmdidConsole =    0x102;
+        public const uint cmdidFolders = 0x101;
     };
 }

@@ -1,9 +1,16 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using Microsoft.VSFolders.Console;
-
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="NativeMethods.cs" company="Microsoft">
+//   Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// <summary>
+//   NativeMethods.cs
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 namespace Microsoft.VSFolders.ShellIcons
 {
+    using System;
+    using System.Runtime.InteropServices;
+
     internal static class NativeMethods
     {
         [DllImport("user32.dll")]
@@ -16,7 +23,14 @@ namespace Microsoft.VSFolders.ShellIcons
         public static extern IntPtr SetParent(IntPtr hWnd, IntPtr hWndParent);
 
         [DllImport("user32")]
-        public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, int uFlags);
+        public static extern bool SetWindowPos(
+            IntPtr hWnd, 
+            IntPtr hWndInsertAfter, 
+            int x, 
+            int y, 
+            int cx, 
+            int cy, 
+            int uFlags);
 
         [DllImport("kernel32.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Auto)]
         public static extern bool AttachConsole(uint processId);
@@ -30,18 +44,17 @@ namespace Microsoft.VSFolders.ShellIcons
         [DllImport("kernel32.dll")]
         public static extern Coord GetConsoleFontSize(IntPtr hConsoleOutput, uint nFont);
 
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool GetConsoleScreenBufferInfo(IntPtr consoleOutput, out ConsoleScreenBufferInfo bufferInfo);
-
-        [DllImport("kernel32.dll")]
-        public static extern bool GetCurrentConsoleFont(IntPtr hConsoleOutput, bool bMaximumWindow, out ConsoleFontInfo lpConsoleCurrentFont);
-
         [DllImport("kernel32.dll")]
         public static extern IntPtr GetStdHandle(int stdHandle);
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref Win32.SHFILEINFO psfi, uint cbFileInfo, uint uFlags);
-        
+        public static extern IntPtr SHGetFileInfo(
+            string pszPath, 
+            uint dwFileAttributes, 
+            ref Win32.SHFILEINFO psfi, 
+            uint cbFileInfo, 
+            uint uFlags);
+
         [DllImport("kernel32.dll", CallingConvention = CallingConvention.StdCall)]
         public static extern bool SetConsoleScreenBufferSize(IntPtr hConsoleOutput, Coord dwSize);
 

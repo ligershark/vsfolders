@@ -1,19 +1,49 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.IO;
-using System.Windows.Media.Imaging;
-using Microsoft.VSFolders.Build;
-using Microsoft.VSFolders.FastTree;
-using Microsoft.VSFolders.ShellIcons;
-
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FileData.cs" company="Microsoft">
+//   Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// <summary>
+//   FileData.cs
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 namespace Microsoft.VSFolders.Models
 {
-    public class FileData : BindableType, IFastTreeEnlightened<FileData>
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
+    using System.Windows.Media.Imaging;
+    using Services;
+    using ShellIcons;
+
+    [DebuggerDisplay("{DebuggerDisplay}")]
+    public class FileData : ObservableType
     {
-        private readonly ConcurrentDictionary<string, FileData> _files;
+        public static readonly ComparerOf<FileData> Comparer =
+            new ComparerOf<FileData>().OnDescending(x => x.IsDirectory).On(x => x.Name);
+
+        private readonly object _sync = new object();
+
         private string _fullPath;
+
         private string _name;
-        private BitmapSource _icon;
+
+        private Lazy<BitmapSource> _icon;
+
+        private SortedObservableCollection<FileData> _children;
+
+        private bool _isExpanded;
+
+        private bool _isHidden;
+
+        private bool _isSelected;
+
+        public FileData(FileData parent, string selectedPath)
+        {
+            this.Parent = parent;
+            this.SetFullPath(selectedPath);
+        }
 
         public bool IsDirectory { get; private set; }
 
@@ -21,184 +51,163 @@ namespace Microsoft.VSFolders.Models
 
         public string Name
         {
-            get { return _name; }
-            protected set { Set(ref _name, value); }
+            get { return this._name; }
+            protected set { this.Set(ref this._name, value); }
         }
 
-        public BitmapSource Icon
+        public bool AreChildrenLoaded
         {
-            get { return _icon; }
-            set { Set(ref _icon, value); }
-        }
-
-        public FileData(FileData parent, string selectedPath, ConcurrentDictionary<string, FileData> files)
-        {
-            //BeginRenameCommand = new ActionCommand(BeginRename);
-            //CancelRenameCommand = new ActionCommand(CancelRename);
-            //CommitRenameCommand = new ActionCommand(CommitRename);
-
-            Parent = parent;
-            _files = files;
-
-            SetFullPath(selectedPath);
-            if (VSFoldersPackage.Settings.ExpandedFolders.Contains(selectedPath))
+            get
             {
-                IsExpanded = true;
-            }
-
-            RefreshValues();
-        }
-
-        public void CommitRename()
-        {
-            if (String.IsNullOrEmpty(TempName))
-                return;
-
-            if (IsDirectory)
-            {
-                Directory.Move(_fullPath, Path.Combine(Path.GetDirectoryName(_fullPath), TempName));
-            }
-            else
-            {
-                File.Move(_fullPath, Path.Combine(Path.GetDirectoryName(_fullPath), TempName));
+                lock (this._sync)
+                {
+                    return this._children != null;
+                }
             }
         }
 
-        private void CancelRename()
+        public SortedObservableCollection<FileData> Children
         {
-            IsRenaming = false;
-        }
-
-        private void BeginRename()
-        {
-            IsRenaming = true;
-        }
-
-        public void SetFullPath(string path)
-        {
-            if (_fullPath != null)
+            get
             {
-                FileData outs;
-                _files.TryRemove(_fullPath, out outs);
+                if (this._children == null && this.IsDirectory)
+                {
+                    lock (this._sync)
+                    {
+                        if (this._children == null)
+                        {
+                            this._children = new SortedObservableCollection<FileData>(
+                                this.LoadChildFileSystemInfos(),
+                                FileData.Comparer,
+                                null);
+                        }
+                    }
+                }
+
+                return this._children;
             }
-
-            _fullPath = path;
-
-            _files.TryAdd(_fullPath, this);
-            IsDirectory = Directory.Exists(path);
-            Name = (IsDirectory ? (FileSystemInfo)new DirectoryInfo(path) : new FileInfo(path)).Name;
-            Icon = IconUtil.RefreshIcon(path);
         }
 
-        public void Cleanup()
+        public Lazy<BitmapSource> Icon
         {
-            TreeNode.ForEach<TreeNode<FileData>>(x => x.Value.Cleanup());
-
-            if (VSFoldersPackage.Settings.OpenFolders.Contains(_fullPath))
-            {
-                VSFoldersPackage.Settings.OpenFolders.Remove(_fullPath);
-            }
-            FileData outs;
-            _files.TryRemove(_fullPath, out outs);
+            get { return this._icon; }
+            set { this.Set(ref this._icon, value); }
         }
 
-        public string FullPath { get { return _fullPath; } }
-
-        private bool _isExpanded;
+        public string FullPath
+        {
+            get { return this._fullPath; }
+            private set { this.Set(ref this._fullPath, value); }
+        }
 
         public bool IsExpanded
         {
-            get { return _isExpanded; }
+            get { return this._isExpanded; }
+            set { this.Set(ref this._isExpanded, value); }
+        }
+
+        public bool IsSelected
+        {
+            get { return this._isSelected; }
             set
             {
-                _isExpanded = value;
-                OnPropertyChanged();
-
+                this.Set(ref this._isSelected, value);
                 if (value)
                 {
-                    VSFoldersPackage.Settings.ExpandedFolders.Add(FullPath);
-                }
-                else
-                {
-                    VSFoldersPackage.Settings.ExpandedFolders.Remove(FullPath);
+                    Factory.Resolve<FolderService>().SelectedItem = this;
                 }
             }
-        }
-
-        public string TempName
-        {
-            get { return _tempName; }
-            set
-            {
-                _tempName = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _isRenaming;
-        private string _tempName;
-        private bool _isFilterExpanded;
-        private bool _isHidden;
-
-        public bool IsRenaming
-        {
-            get { return _isRenaming; }
-            set
-            {
-                _isRenaming = value;
-                OnPropertyChanged();
-
-                if (value)
-                {
-                    TempName = Name;
-                }
-            }
-        }
-
-        //public ICommand BeginRenameCommand { get; private set; }
-        //public ICommand CommitRenameCommand { get; private set; }
-        //public ICommand CancelRenameCommand { get; private set; }
-
-        public bool IsFilterExpanded
-        {
-            get { return _isFilterExpanded; }
-            set
-            {
-                _isFilterExpanded = value;
-                OnPropertyChanged();
-                OnPropertyChanged("IsExpanded");
-            }
-        }
-
-        public void RefreshValues()
-        {
-            if (IsDirectory)
-            {
-                IsHidden = new DirectoryInfo(FullPath).Attributes.HasFlag(FileAttributes.Hidden);
-                return;
-            }
-
-            IsHidden = new FileInfo(FullPath).Attributes.HasFlag(FileAttributes.Hidden);
         }
 
         public bool IsHidden
         {
-            get
+            get { return this._isHidden; }
+            set { this.Set(ref this._isHidden, value); }
+        }
+
+        public void Add(string child)
+        {
+            lock (this._sync)
             {
-                return _isHidden;
-            }
-            set
-            {
-                _isHidden = value;
-                OnPropertyChanged();
+                if (this.AreChildrenLoaded)
+                {
+                    if (this.Children.FirstOrDefault(x => x.FullPath == child) != null)
+                    {
+                        return;
+                    }
+
+                    this.Children.AddLocal(new FileData(this, child));
+                }
             }
         }
 
-        public TreeNode<FileData> TreeNode { get; set; }
-
-        public override string ToString()
+        public void Remove(FileData child)
         {
-            return string.Format("{0} ({1}: {2})", Name, IsDirectory ? "Directory" : "File", FullPath);
+            if (this.AreChildrenLoaded)
+            {
+                this.Children.RemoveLocal(child);
+            }
+        }
+
+        public void SetFullPath(string path)
+        {
+            if (this.FullPath != null)
+            {
+                FileData outs;
+                Factory.Resolve<FolderService>().Files.TryRemove(this.FullPath, out outs);
+            }
+
+            this.FullPath = path;
+
+            Factory.Resolve<FolderService>().Files.TryAdd(this.FullPath, this);
+
+            this.IsDirectory = Directory.Exists(path);
+            if (this.IsDirectory)
+            {
+                this.Name = new DirectoryInfo(path).Name;
+            }
+            else
+            {
+                FileInfo info = new FileInfo(path);
+                this.Name = info.Name;
+                this.IsHidden = info.Attributes.HasFlag(FileAttributes.Hidden);
+            }
+
+            this.Icon = new Lazy<BitmapSource>(() => IconUtil.GetIcon(this.FullPath));
+        }
+
+        public void Cleanup()
+        {
+            if (this.AreChildrenLoaded)
+            {
+                this.Children.ForEach(x => x.Cleanup());
+            }
+
+            var settings = Factory.Resolve<Settings>();
+            if (settings.OpenFolders.Contains(this._fullPath))
+            {
+                settings.OpenFolders.Remove(this._fullPath);
+            }
+
+            FileData outs;
+            Factory.Resolve<FolderService>().Files.TryRemove(this._fullPath, out outs);
+            this._children = null;
+        }
+
+        private string DebuggerDisplay
+        {
+            get { return $"{this.Name} ({(this.IsDirectory ? "Directory" : "File")}: {this.FullPath})"; }
+        }
+
+        private IEnumerable<FileData> LoadChildFileSystemInfos()
+        {
+            if (this.IsDirectory)
+            {
+                foreach (string entry in Directory.GetFileSystemEntries(this.FullPath))
+                {
+                    yield return new FileData(this, entry);
+                }
+            }
         }
     }
 }

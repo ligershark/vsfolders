@@ -1,21 +1,3 @@
 ﻿{
-    "DefaultConsole": "Command Prompt",
-    "Consoles": {
-        "Command Prompt": {
-            "Executable": "cmd",
-            "ExitCommand": "exit"
-        },
-        "Powershell": {
-            "Executable": "powershell",
-            "ExitCommand": "exit"
-        },
-        "Bash (Cygwin)": {
-            "Executable": "C:\\cygwin64\\bin\\mintty.exe",
-            "Arguments": "-i /Cygwin-Terminal.ico -",
-            "Separator": "/",
-            "ExitCommand": "exit"
-        }
-    },
-    "PreviewItems":  true,
-    "TrackFolders": true
+    "PreviewItems":  false
 }

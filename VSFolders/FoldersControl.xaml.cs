@@ -1,223 +1,152 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using Microsoft.VSFolders.FastTree;
-using Microsoft.VSFolders.Models;
-using Microsoft.VSFolders.ShellIcons;
-using Microsoft.VSFolders.ViewModels;
-using DataFormats = System.Windows.DataFormats;
-using DragDropEffects = System.Windows.DragDropEffects;
-using DragEventArgs = System.Windows.DragEventArgs;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-using MessageBox = System.Windows.MessageBox;
-using TreeView = System.Windows.Controls.TreeView;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FoldersControl.xaml.cs" company="Microsoft">
+//   Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace Microsoft.VSFolders
 {
+    using System.IO;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Input;
+    using Commands;
+    using Models;
+    using Services;
+
     /// <summary>
     ///     Interaction logic for MyControl.xaml
     /// </summary>
     public partial class FoldersControl
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FoldersControl"/> class.
+        /// </summary>
         public FoldersControl()
         {
-            InitializeComponent();
-            ViewModel = new FoldersWindowViewModel();
+            this.InitializeComponent();
+            this.ViewModel = new FoldersWindowViewModel();
+            Factory.Resolve<FolderNavigationService>().TreeView = this.Folders;
         }
 
+        /// <summary>
+        /// Gets or sets the view model.
+        /// </summary>
         public FoldersWindowViewModel ViewModel
         {
-            get { return DataContext as FoldersWindowViewModel; }
-            set { DataContext = value; }
+            get { return this.DataContext as FoldersWindowViewModel; }
+            set { this.DataContext = value; }
         }
 
+        /// <summary>
+        /// The collapse all button click.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
         private void CollapseAllButtonClick(object sender, RoutedEventArgs e)
         {
-            foreach (var node in FindVisualChildren<TreeViewItem>(Folders))
+            foreach (TreeViewItem node in VisualTreeHelperHelper.FindVisualChildren<TreeViewItem>(this.Folders))
             {
                 node.IsExpanded = false;
             }
         }
 
+        /// <summary>
+        /// The control_ on mouse double click.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
         private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             e.Handled = true;
-            var tv = (TreeView)sender;
-
-            if (tv.SelectedItem == null)
-            {
-                return;
-            }
-
-            var dc = ((TreeNode<FileData>)tv.SelectedItem).Value;
-
-            if (!File.Exists(dc.FullPath))
-            {
-                return;
-            }
-
-            var path = dc.FullPath;
-
-            try
-            {
-                if (File.Exists(path) && new FileInfo(path).Length > 10 * 1024 * 1024)
-                {
-                    if (MessageBox.Show("The file " + dc.Name + " is pretty big and might take quite a while to open.\r\nAre you sure you want to open it?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
-                    {
-                        return;
-                    }
-                }
-
-                VSFoldersPackage.DTE.ItemOperations.OpenFile(path);
-            }
-            catch
-            {
-                try
-                {
-                    System.Diagnostics.Process.Start(path);
-                }
-                catch
-                {
-                }
-            }
+            TreeView tv = (TreeView)sender;
+            this.ViewModel.OpenItemCommand.Execute(tv.SelectedItem as FileData);
         }
 
-        private void ShowInPreviewWindowIfSelected(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            if (ViewModel.IsUpdating)
-            {
-                return;
-            }
-
-            var tv = (TreeView)sender;
-
-            try
-            {
-                if (tv.SelectedItem == null)
-                {
-                    return;
-                }
-
-                ViewModel.IsUpdating = true;
-                var fullPath = ((TreeNode<FileData>)tv.SelectedItem).Value.FullPath;
-
-                if (VSFoldersPackage.Settings.PreviewItems)
-                {
-                    if (File.Exists(fullPath) && new FileInfo(fullPath).Length < 1024 * 1024)
-                    {
-                        try
-                        {
-                            ShellHelpers.OpenFileInPreviewTab(fullPath);
-                        }
-                        catch
-                        {
-                        }
-                        finally
-                        {
-                            tv.Focus();
-                        }
-                    }
-                }
-
-                ViewModel.Path = fullPath;
-            }
-            finally
-            {
-                ViewModel.IsUpdating = false;
-            }
-        }
-
+        /// <summary>
+        /// The ui element_ on key down.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
         private void UIElement_OnKeyDown(object sender, KeyEventArgs e)
         {
-            ViewModel.Gestures.HandleKeys(e);
+            Factory.Resolve<GestureService>().HandleKeys(e);
         }
 
-        private void SearchLostFocus(object sender, RoutedEventArgs e)
-        {
-            SearchOptions.IsOpen = false;
-        }
-
-        //private void RenameBoxLostFocus(object sender, RoutedEventArgs e)
-        //{
-        //    var fileData = (FileData)((FrameworkElement)sender).DataContext;
-        //    fileData.CancelRenameCommand.Execute(null);
-        //}
-
-        private void ShowSearchOptionsClicked(object sender, RoutedEventArgs e)
-        {
-            SearchOptions.Width = SearchPane.ActualWidth;
-            SearchOptions.HorizontalOffset = 0;
-            SearchOptions.VerticalOffset = 0;
-            SearchOptions.IsOpen = true;
-            FirstOption.Focus();
-        }
-
+        /// <summary>
+        /// The folders_ on mouse down.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
         private void Folders_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            Folders.Focus();
+            this.Folders.Focus();
         }
 
+        /// <summary>
+        /// The ui element_ on drag over.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
         private void UIElement_OnDragOver(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effects = DragDropEffects.Copy;
-            }
-            else
-            {
-                e.Effects = DragDropEffects.None;
-            }
+            e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
         }
 
+        /// <summary>
+        /// The ui element_ on drop.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
         private void UIElement_OnDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                
+
                 foreach (string file in files)
                 {
                     if (Directory.Exists(file))
                     {
-                        ViewModel.AddPath(file);
+                        new AddFolderCommand().Execute(file);
                     }
                 }
             }
         }
 
-        private void SearchTextPreviewKeyDown(object sender, KeyEventArgs e)
+        private void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.Key == Key.Escape)
+            if (e.ClickCount != 1)
             {
-                ViewModel.SearchText = string.Empty;
-                e.Handled = true;
+                return;
             }
 
-            SearchText.Focus();
-        }
-
-        private static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
-        {
-            if (depObj != null)
-            {
-                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
-                {
-                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
-                    var item = child as T;
-                    if (item != null)
-                    {
-                        yield return item;
-                    }
-
-                    foreach (T childOfChild in FindVisualChildren<T>(child))
-                    {
-                        yield return childOfChild;
-                    }
-                }
-            }
+            FrameworkElement f = (FrameworkElement)sender;
+            this.ViewModel.PreviewItemCommand.Execute(f.DataContext as FileData);
         }
     }
 }

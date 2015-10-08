@@ -1,26 +1,40 @@
-﻿using System.Windows.Forms;
-using Microsoft.VSFolders.FastTree;
-using Microsoft.VSFolders.Models;
-using Microsoft.VSFolders.ViewModels;
-
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="RenameCommand.cs" company="Microsoft">
+//   Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// <summary>
+//   RenameCommand.cs
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 namespace Microsoft.VSFolders.Commands
 {
+    using System.IO;
+    using System.Windows.Forms;
+    using Models;
+
     public class RenameCommand : CommandBase
     {
         public override void Execute(object parameter)
         {
-            var obj = parameter as TreeNode<FileData>; ;
-            if (obj == null)
-                return;
+            FileData obj = parameter.CheckAs<FileData>();
 
             string fileName;
 
-            if (AddRename.ShowAsDialog("Provide a new name", obj.Value.Name, out fileName) == DialogResult.OK)
+            if (AddRename.ShowAsDialog("Provide a new name", obj.Name, out fileName) == DialogResult.OK)
             {
-                if (fileName == obj.Value.Name)
+                if (fileName == obj.Name)
+                {
                     return;
-                obj.Value.TempName = fileName;
-                obj.Value.CommitRename();
+                }
+
+                if (obj.IsDirectory)
+                {
+                    Directory.Move(obj.FullPath, Path.Combine(Path.GetDirectoryName(obj.FullPath), fileName));
+                }
+                else
+                {
+                    File.Move(obj.FullPath, Path.Combine(Path.GetDirectoryName(obj.FullPath), fileName));
+                }
             }
         }
     }

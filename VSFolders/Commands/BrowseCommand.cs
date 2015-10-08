@@ -1,26 +1,26 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Windows.Forms;
-using Microsoft.VSFolders.FastTree;
-using Microsoft.VSFolders.Models;
-using Microsoft.VSFolders.ViewModels;
-
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="BrowseCommand.cs" company="Microsoft">
+//   Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// <summary>
+//   BrowseCommand.cs
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 namespace Microsoft.VSFolders.Commands
 {
+    using System.Diagnostics;
+    using System.IO;
+    using Models;
+
     public class BrowseCommand : CommandBase
     {
         public override void Execute(object parameter)
         {
-            var obj = parameter as TreeNode<FileData>;
+            FileData obj = parameter.CheckAs<FileData>();
 
-            if (obj.Value.IsDirectory)
-            {
-                Process.Start("explorer.exe", obj.Value.FullPath);
-            }
-            else
-            {
-                Process.Start(obj.Value.FullPath);
-            }
+            string path = obj.IsDirectory ? obj.FullPath : Path.GetDirectoryName(obj.FullPath);
+
+            Process.Start("explorer.exe", path);
         }
     }
 }

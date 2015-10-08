@@ -1,39 +1,40 @@
-﻿using System;
-using System.IO;
-using System.Windows.Forms;
-using Microsoft.VSFolders.FastTree;
-using Microsoft.VSFolders.Models;
-using Microsoft.VSFolders.ViewModels;
-
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="AddFolderCommand.cs" company="Microsoft">
+//   Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// <summary>
+//   AddFolderCommand.cs
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 namespace Microsoft.VSFolders.Commands
 {
+    using System.IO;
+    using System.Windows.Threading;
+    using Models;
+    using Services;
+
     public class AddFolderCommand : CommandBase
     {
+        /// <summary>
+        /// Executes the specified parameter.
+        /// </summary>
+        /// <param name="parameter">The parameter.</param>
         public override void Execute(object parameter)
         {
-            var obj = parameter as TreeNode<FileData>;
+            string path = parameter.CheckAs<string>();
+           
+            var ds = Factory.Resolve<FolderService>();
 
-            if (obj == null || !obj.Value.IsDirectory)
-                return;
-
-            string fileName;
-
-            if (AddRename.ShowAsDialog("Provide a folder name", null, out fileName) == DialogResult.OK)
+            if (Directory.Exists(path) && !ds.Files.ContainsKey(path))
             {
-                string newPath = Path.Combine(obj.Value.FullPath, fileName);
-                if (Directory.Exists(newPath))
+                var settings = Factory.Resolve<Settings>();
+                if (!settings.OpenFolders.Contains(path))
                 {
-                    MessageBox.Show("Directory already exists.", "Invalid Directory Name", MessageBoxButtons.OK);
-                    return;
+                    settings.OpenFolders.Add(path);
                 }
-                try
-                {
-                    Directory.CreateDirectory(newPath);
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("Unable to create directory.", "Operation failed", MessageBoxButtons.OK);
-                }
+
+                Dispatcher.CurrentDispatcher.Invoke(
+                    () => ds.Tree.AddLocal(new FileData(null, path)));
             }
         }
     }

@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="Microsoft.VSFolders.SearchControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converters="clr-namespace:Microsoft.VSFolders.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <converters:AssetConverter x:Key="Asset" />
+        <converters:BoolToVisibilityConverter x:Key="Vis" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid x:Name="SearchPane">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBox x:Name="SearchText" Text="{Binding Path=SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="SearchTextPreviewKeyDown" />
+            <Button x:Name="SearchButton" Grid.Column="1" Grid.Row="0" Background="Transparent" BorderBrush="Transparent" Visibility="{Binding Path=IsSearching, Converter={StaticResource Vis}, ConverterParameter=true}">
+                <Image Source="{Binding Converter={StaticResource Asset}, ConverterParameter='magnifier_16xLG'}" />
+            </Button>
+            <Button Grid.Column="1" Grid.Row="0" Command="{Binding Path=ClearSearchCommand}" Background="Transparent" BorderBrush="Transparent" Visibility="{Binding Path=IsSearching, Converter={StaticResource Vis}}">
+                <Image Source="{Binding Converter={StaticResource Asset}, ConverterParameter='action_Cancel_16xLG'}" />
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>

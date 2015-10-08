@@ -3,11 +3,11 @@
   <Metadata>
     <Identity Id="bfddff91-960d-410f-9edf-9a53f100d7fa" Version="1.0" Language="en-US" Publisher="Microsoft" />
     <DisplayName>VSFolders</DisplayName>
-    <Description>Information about my package</Description>
+    <Description xml:space="preserve">Displays Files and Folders in Visual Studio</Description>
   </Metadata>
   <Installation InstalledByMsi="false">
-    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[12.0]" />
-    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[14.0]" />
+    <InstallationTarget Version="[12.0,13.0)" Id="Microsoft.VisualStudio.Pro" />
+    <InstallationTarget Version="[14.0,15.0)" Id="Microsoft.VisualStudio.Pro" />
   </Installation>
   <Dependencies>
     <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />

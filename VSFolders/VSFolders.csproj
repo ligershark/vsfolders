@@ -4,34 +4,15 @@
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccAuxPath>
-    </SccAuxPath>
-    <SccProvider>
-    </SccProvider>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>12.0</OldToolsVersion>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -72,21 +53,22 @@
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.VisualStudio.OLE.Interop" />
+    <Reference Include="Microsoft.VisualStudio.OLE.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Immutable.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop" />
-    <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0" />
-    <Reference Include="Microsoft.VisualStudio.Shell.Interop.9.0" />
-    <Reference Include="Microsoft.VisualStudio.Shell.Interop.10.0" />
-    <Reference Include="Microsoft.VisualStudio.Shell.Interop.11.0">
-      <EmbedInteropTypes>true</EmbedInteropTypes>
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.11.0, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Shell.Interop.12.0">
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.9.0, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="Microsoft.VisualStudio.TextManager.Interop" />
     <Reference Include="Microsoft.VisualStudio.Shell.12.0" />
-    <Reference Include="Microsoft.VisualStudio.Shell.Immutable.10.0" />
-    <Reference Include="Microsoft.VisualStudio.Shell.Immutable.11.0" />
     <Reference Include="Microsoft.VisualStudio.Shell.Immutable.12.0" />
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -165,118 +147,68 @@
     <Compile Include="AddRename.xaml.cs">
       <DependentUpon>AddRename.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Build\Compile.cs" />
-    <Compile Include="Build\CompileLogger.cs" />
-    <Compile Include="Build\Conditional.cs" />
-    <Compile Include="Build\FileUtils.cs" />
-    <Compile Include="Build\Import.cs" />
-    <Compile Include="Build\ItemGroup.cs" />
-    <Compile Include="Build\None.cs" />
-    <Compile Include="Build\Project.cs" />
-    <Compile Include="Build\ProjectCreator.cs" />
-    <Compile Include="Build\Property.cs" />
-    <Compile Include="Build\PropertyGroup.cs" />
-    <Compile Include="Build\Reference.cs" />
-    <Compile Include="Build\XmlObject.cs" />
-    <Compile Include="Commands\AddFileCommand.cs" />
     <Compile Include="Commands\AddFolderCommand.cs" />
-    <Compile Include="Commands\LaunchIISExpressCommand.cs" />
-    <Compile Include="Commands\ShowShellMenuCommand.cs" />
+    <Compile Include="Commands\CreateFileCommand.cs" />
+    <Compile Include="Commands\CreateFolderCommand.cs" />
     <Compile Include="Commands\BrowseForFolderCommand.cs" />
-    <Compile Include="Commands\OpenConsoleCommand.cs" />
-    <Compile Include="Commands\BuildCommand.cs" />
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\BrowseCommand.cs" />
     <Compile Include="Commands\DeleteCommand.cs" />
-    <Compile Include="Commands\RemoveCommand.cs" />
+    <Compile Include="Commands\OpenFileCommand.cs" />
+    <Compile Include="Commands\SyncActiveDocumentCommand.cs" />
+    <Compile Include="Commands\OpenInPreviewCommand.cs" />
+    <Compile Include="Commands\NavigateToCommand.cs" />
+    <Compile Include="Commands\RemoveFolderCommand.cs" />
     <Compile Include="Commands\OpenProjectCommand.cs" />
     <Compile Include="Commands\RenameCommand.cs" />
     <Compile Include="Commands\OpenSolutionCommand.cs" />
-    <Compile Include="Console\ConsoleControl.xaml.cs">
-      <DependentUpon>ConsoleControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Console\ConsoleDefinition.cs" />
-    <Compile Include="Console\ConsoleFontInfo.cs" />
-    <Compile Include="Console\ConsoleScreenBufferInfo.cs" />
-    <Compile Include="Console\ConsoleWindow.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="Services\FolderNavigationService.cs" />
     <Compile Include="ContextMenu\ContextMenuItem.cs" />
-    <Compile Include="ContextMenu\ContextMenuService.cs" />
+    <Compile Include="Services\ContextMenuService.cs" />
     <Compile Include="ContextMenu\IContextMenuItem.cs" />
     <Compile Include="Converters\BoolToOpacityConverter.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
-    <Compile Include="Converters\FileDataToEffectivelyHiddenIndicationConverter.cs" />
     <Compile Include="Converters\WhyIsThisNecessaryConverter.cs" />
     <Compile Include="Converters\AssetConverter.cs" />
     <Compile Include="Converters\ContextMenuConverter.cs" />
     <Compile Include="Converters\NotConverter.cs" />
     <Compile Include="Coord.cs" />
-    <Compile Include="FastTree\CustomPropertyDescriptor.cs" />
-    <Compile Include="FastTree\IFastTreeEnlightened.cs" />
-    <Compile Include="FastTree\ITreeCollection.cs" />
-    <Compile Include="FastTree\ITreeNode.cs" />
-    <Compile Include="FastTree\ProxyType.cs" />
-    <Compile Include="FastTree\TreeCollection.cs" />
-    <Compile Include="FastTree\TreeNode.cs" />
-    <Compile Include="FastTree\TreeNodeTypeDescriptionProvider.cs" />
-    <Compile Include="FastTree\TreeNodeTypeDescriptor.cs" />
-    <Compile Include="FilteredCollection.cs" />
+    <Compile Include="EnumString.cs" />
+    <Compile Include="FindScope.cs" />
+    <Compile Include="GlobalCommands.cs" />
+    <Compile Include="SortedObservableCollection.cs" />
     <Compile Include="FoldersControl.xaml.cs">
       <DependentUpon>FoldersControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="FoldersWindow.cs" />
-    <Compile Include="GestureHandler.cs" />
+    <Compile Include="Services\GestureService.cs" />
     <Compile Include="GuidList.cs" />
-    <Compile Include="Settings\AzureWebsitesObject.cs" />
-    <Compile Include="Settings\AzureWebsitesSettings.cs" />
-    <Compile Include="Settings\AzureWebsitesSettingsPage.cs">
-      <SubType>Component</SubType>
+    <Compile Include="Models\SearchControlViewModel.cs" />
+    <Compile Include="SearchControl.xaml.cs">
+      <DependentUpon>SearchControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Settings\ConsoleDefinition.cs" />
-    <Compile Include="Settings\ConsoleDefinitionCollection.cs" />
-    <Compile Include="Settings\ConsoleSettingsPage.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Settings\GeneralSettings.cs" />
-    <Compile Include="Settings\GeneralSettingsPage.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Settings\GlobalSettings.cs" />
-    <Compile Include="Settings\IConsoleDefinition.cs" />
+    <Compile Include="Search\SearchProvider.cs" />
+    <Compile Include="Search\SearchResult.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="ServiceContainer.cs" />
-    <Compile Include="Models\SettingsModel.cs" />
-    <Compile Include="Settings\ISettingsObject.cs" />
-    <Compile Include="Settings\NoSettings.cs" />
-    <Compile Include="Settings\SettingsOptionPage.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Settings\SettingsSelector.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Settings\SettingsStore.cs" />
-    <Compile Include="WindowsShell\ShellContextMenu.cs" />
-    <Compile Include="WindowsShell\ShellContextMenuException.cs" />
-    <Compile Include="WindowsShell\ShellHelper.cs" />
+    <Compile Include="Factory.cs" />
     <Compile Include="ShellIcons\IconUtil.cs" />
     <Compile Include="ShellIcons\NativeMethods.cs" />
     <Compile Include="ShellIcons\ShellHelpers.cs" />
     <Compile Include="ShellIcons\Win32.cs" />
-    <Compile Include="Console\SmallRect.cs" />
     <Compile Include="Commands\ActionCommand.cs" />
     <Compile Include="Models\AddRenameViewModel.cs" />
-    <Compile Include="Models\BindableType.cs" />
+    <Compile Include="Models\ObservableType.cs" />
     <Compile Include="Models\ComparerOf.cs" />
-    <Compile Include="Models\Extensions.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Models\FileData.cs" />
     <Compile Include="Models\FileSystemTracker.cs" />
-    <Compile Include="Models\FolderChangedEventHandler.cs" />
-    <Compile Include="Models\FolderChangedEventHandlerArgs.cs" />
-    <Compile Include="Models\FolderDataSource.cs" />
+    <Compile Include="Services\FolderService.cs" />
     <Compile Include="Models\FoldersWindowViewModel.cs" />
     <Compile Include="Models\MenuItemInfo.cs" />
     <Compile Include="VisualTreeHelperHelper.cs" />
@@ -293,18 +225,17 @@
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
       <ManifestResourceName>VSPackage</ManifestResourceName>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Resources\Images.psd" />
-    <Resource Include="Resources\Build.png" />
-    <None Include="Resources\Console.png" />
     <None Include="Resources\gear_16xLG.png" />
     <None Include="Resources\magnifier_16xLG.png" />
     <None Include="Resources\GlyphDown.png" />
     <None Include="Resources\action_Cancel_16xLG.png" />
     <None Include="Resources\template_Document_16xLG.png" />
+    <Resource Include="Resources\arrow_Sync.png" />
     <Content Include="Settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -335,27 +266,16 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Console\ConsoleControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="FoldersControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="SearchControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <UseCodebase>true</UseCodebase>
   </PropertyGroup>
