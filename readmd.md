@@ -1,0 +1,3 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/7egha4snyo9on9lp?svg=true)](https://ci.appveyor.com/project/sayedihashimi/vsfolders)
+
+More info coming soon...
